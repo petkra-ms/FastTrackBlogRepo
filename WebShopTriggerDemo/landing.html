@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Voltex Supply – Electrical &amp; Industrial Materials</title>
+    <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+<!-- ── Public Header ──────────────────────────────────────── -->
+<header class="public-header">
+    <a href="landing.html" class="logo">Volt<span>ex</span> Supply</a>
+    <nav>
+        <a href="shop.html" id="nav-products">Products</a>
+        <a href="index.html" class="btn-header-cta" id="nav-signin">Sign In</a>
+    </nav>
+</header>
+
+<!-- ── Hero ───────────────────────────────────────────────── -->
+<section class="hero">
+    <div class="hero-inner">
+        <h1>Your one-stop shop for<br/><em>electrical supply materials</em></h1>
+        <p>
+            Trade-quality cables, circuit protection, lighting and wiring accessories
+            — all in one place. Trusted by electricians and facilities managers across the UK.
+        </p>
+        <div class="hero-actions">
+            <a href="shop.html" class="btn-hero-primary" id="hero-browse">Browse Products</a>
+            <a href="index.html" class="btn-hero-secondary" id="hero-signin">Sign In / Account</a>
+        </div>
+    </div>
+</section>
+
+<!-- ── Trust Bar ──────────────────────────────────────────── -->
+<div class="trust-bar">
+    <div class="trust-item"><span class="ti-icon">🚚</span> Free delivery over £75</div>
+    <div class="trust-item"><span class="ti-icon">🔒</span> Secure checkout</div>
+    <div class="trust-item"><span class="ti-icon">🛠️</span> Trade &amp; contract accounts</div>
+    <div class="trust-item"><span class="ti-icon">📞</span> Expert technical support</div>
+    <div class="trust-item"><span class="ti-icon">↩️</span> 30-day returns</div>
+</div>
+
+<!-- ── Categories ─────────────────────────────────────────── -->
+<section class="landing-section">
+    <h2 class="section-title">Shop by Category</h2>
+    <p class="section-subtitle">Find exactly what you need across our four product ranges.</p>
+    <div class="category-grid" id="category-grid">
+        <!-- populated by JS -->
+    </div>
+</section>
+
+<!-- ── Featured Products ──────────────────────────────────── -->
+<section style="background:var(--surface); border-top:1px solid var(--border); border-bottom:1px solid var(--border);">
+    <div class="landing-section" style="padding-bottom:2rem;">
+        <h2 class="section-title">Featured Products</h2>
+        <p class="section-subtitle">Popular items hand-picked for you.</p>
+        <div class="featured-grid" id="featured-grid">
+            <!-- populated by JS -->
+        </div>
+        <div style="text-align:center;margin-top:2rem;">
+            <a href="shop.html" class="btn-hero-primary">View All Products →</a>
+        </div>
+    </div>
+</section>
+
+<!-- ── CTA Banner ─────────────────────────────────────────── -->
+<div style="padding:3rem 0 0;">
+    <div class="cta-banner">
+        <h2>Ready to order?</h2>
+        <p>Sign in to your account to add items to your basket and get trade pricing.</p>
+        <a href="index.html" class="btn-hero-primary" id="cta-signin">Sign In to Shop</a>
+    </div>
+</div>
+
+<!-- ── Footer ─────────────────────────────────────────────── -->
+<footer class="landing-footer">
+    <p>© 2026 Voltex Supply Ltd &nbsp;·&nbsp; Demo site for Customer Insights – Journeys trigger showcase &nbsp;·&nbsp;
+    <a href="index.html">Sign In</a> &nbsp;·&nbsp; <a href="shop.html">Shop</a></p>
+</footer>
+
+<!-- ── Scripts ─────────────────────────────────────────────── -->
+<script src="js/auth.js"></script>
+<script src="js/products.js"></script>
+
+<script>
+    // If already signed in, adjust navigation links to go straight to shop
+    const session = getSession();
+    if (session) {
+        document.getElementById('nav-signin').textContent  = 'My Account (' + session.name.split(' ')[0] + ')';
+        document.getElementById('nav-signin').href         = 'shop.html';
+        document.getElementById('hero-signin').textContent = 'Go to Shop →';
+        document.getElementById('hero-signin').href        = 'shop.html';
+        document.getElementById('cta-signin').textContent  = 'Go to Shop →';
+        document.getElementById('cta-signin').href         = 'shop.html';
+    }
+
+    // ── Category grid ──────────────────────────────────────
+    const categoryMeta = {
+        'Cables':             { desc: 'Installation cables, trunking & cable management' },
+        'Circuit Protection': { desc: 'MCBs, RCDs, RCBOs & consumer units' },
+        'Lighting':           { desc: 'LED panels, downlights & energy-saving fittings' },
+        'Wiring Accessories': { desc: 'Sockets, data outlets & connectors' }
+    };
+
+    const catGrid = document.getElementById('category-grid');
+    catGrid.innerHTML = CATEGORIES.filter(c => c !== 'All').map(cat => `
+        <a class="category-card" href="shop.html#cat-${encodeURIComponent(cat)}">
+            <div class="category-card-icon">${productIcon(cat)}</div>
+            <h3>${cat}</h3>
+            <p>${(categoryMeta[cat] || {}).desc || ''}</p>
+        </a>
+    `).join('');
+
+    // ── Featured products (first 3 from each category) ────
+    const FEATURED_IDS = ['p01', 'p04', 'p08', 'p10', 'p06', 'p09'];
+    const featuredGrid = document.getElementById('featured-grid');
+    featuredGrid.innerHTML = PRODUCTS
+        .filter(p => FEATURED_IDS.includes(p.id))
+        .map(p => `
+            <a class="product-card" href="product.html?id=${p.id}" style="text-decoration:none;color:inherit;">
+                <div class="product-img">${productIcon(p.category)}</div>
+                <div class="product-category-tag">${p.category}</div>
+                <div class="product-name">${p.name}</div>
+                <div class="product-description">${p.description}</div>
+                <div class="product-price">£${p.price.toFixed(2)}</div>
+                <div style="font-size:.8rem;color:var(--primary);font-weight:600;margin-top:auto;">View details →</div>
+            </a>
+        `).join('');
+</script>
+
+</body>
+</html>

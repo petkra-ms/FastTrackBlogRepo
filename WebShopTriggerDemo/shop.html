@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Voltex Supply – Shop</title>
+    <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+<!-- ── Header ─────────────────────────────────────────────── -->
+<header class="site-header">
+    <div class="logo"><a href="landing.html" style="color:#fff;text-decoration:none;">Volt<span>ex</span> Supply</a></div>
+    <div class="header-right">
+        <span class="header-user" id="header-user"></span>
+        <button class="btn-cart" id="btn-cart-toggle" aria-expanded="false" aria-controls="cart-sidebar">
+            🛒 Cart <span id="cart-badge">0</span>
+        </button>
+        <button class="btn-logout" id="btn-logout">Sign out</button>
+    </div>
+
+ <script>
+           (function (a, t, i) { var e = "MSEI"; var s = "Analytics"; var o = e + "queue"; a[o] = a[o] || []; var r = a[e] || function (n) { var t = {}; t[s] = {}; function e(e) { while (e.length) { var r = e.pop(); t[s][r] = function (e) { return function () { a[o].push([e, n, arguments]) } }(r) } } var r = "track"; var i = "set"; e([r + "Event", r + "View", r + "Action", i + "Property", i + "User", "initialize", "teardown"]); return t }(i.name); var n = i.name; if (!a[e]) { a[n] = r[s]; a[o].push(["new", n]); setTimeout(function () { var e = "script"; var r = t.createElement(e); r.async = 1; r.src = i.src; var n = t.getElementsByTagName(e)[0]; n.parentNode.insertBefore(r, n) }, 1) } else { a[n] = new r[s] } if (i.user) { a[n].setUser(i.user) } if (i.props) { for (var c in i.props) { a[n].setProperty(c, i.props[c]) } } a[n].initialize(i.cfg) })(window, document, {
+                src: "https://download.pi.dynamics.com/sdk/web/msei-0.js",
+                name: "msdynmkt",
+                cfg: {
+                    ingestionKey:"517ffe2ad4df41edb70c72b039ec2a06-7e356bd4-8642-44b6-a87a-d6786ee9ad65-7605"
+                }
+            });
+</script>
+
+</header>
+
+
+<!-- ── Shop Layout ─────────────────────────────────────────── -->
+<div class="shop-layout">
+
+    <!-- Main content -->
+    <main class="main-content" id="main-content">
+
+        <nav class="category-filters" id="category-filters" aria-label="Product categories">
+            <!-- Populated by JS -->
+        </nav>
+
+        <div class="product-grid" id="product-grid" aria-live="polite">
+            <!-- Populated by JS -->
+        </div>
+
+    </main>
+
+    <!-- Cart Sidebar -->
+    <aside class="cart-sidebar collapsed" id="cart-sidebar" aria-label="Shopping cart">
+        <div class="cart-header">
+            <span>Your Cart</span>
+            <button class="btn-logout" id="btn-close-cart" aria-label="Close cart">✕</button>
+        </div>
+        <div class="cart-items-wrapper">
+            <div id="cart-items">
+                <p class="cart-empty">Your cart is empty.</p>
+            </div>
+        </div>
+        <div class="cart-footer">
+            <div class="cart-total-row">
+                <span>Total</span>
+                <span id="cart-total">£0.00</span>
+            </div>
+            <button class="btn-clear-cart" id="btn-clear-cart">Clear cart</button>
+        </div>
+    </aside>
+
+</div>
+
+<!-- ── Scripts ─────────────────────────────────────────────── -->
+<script src="js/auth.js"></script>
+<script src="js/products.js"></script>
+<script src="js/cart.js"></script>
+<script src="js/trigger.js"></script>
+<script src="js/inactivity.js"></script>
+
+<script>
+    // ── Session guard ──────────────────────────────────────
+    requireSession();
+    const currentUser = getSession();
+    document.getElementById('header-user').textContent = 'Hi, ' + currentUser.name.split(' ')[0];
+
+    // ── Logout ─────────────────────────────────────────────
+    document.getElementById('btn-logout').addEventListener('click', logout);
+
+    // ── Cart sidebar toggle ────────────────────────────────
+    const cartSidebar    = document.getElementById('cart-sidebar');
+    const btnCartToggle  = document.getElementById('btn-cart-toggle');
+    const btnCloseCart   = document.getElementById('btn-close-cart');
+
+    function openCart()  {
+        cartSidebar.classList.remove('collapsed');
+        cartSidebar.classList.add('open');
+        btnCartToggle.setAttribute('aria-expanded', 'true');
+    }
+    function closeCart() {
+        cartSidebar.classList.add('collapsed');
+        cartSidebar.classList.remove('open');
+        btnCartToggle.setAttribute('aria-expanded', 'false');
+    }
+
+    btnCartToggle.addEventListener('click', () => {
+        cartSidebar.classList.contains('collapsed') ? openCart() : closeCart();
+    });
+    btnCloseCart.addEventListener('click', closeCart);
+
+    document.getElementById('btn-clear-cart').addEventListener('click', () => {
+        if (confirm('Clear all items from your cart?')) clearCart();
+    });
+
+    // ── Category filters ───────────────────────────────────
+    let activeCategory = 'All';
+
+    function renderCategories() {
+        const nav = document.getElementById('category-filters');
+        nav.innerHTML = CATEGORIES.map(cat => `
+            <button
+                class="btn-category${cat === activeCategory ? ' active' : ''}"
+                data-category="${cat}"
+                aria-pressed="${cat === activeCategory}"
+            >${cat}</button>
+        `).join('');
+
+        nav.querySelectorAll('.btn-category').forEach(btn => {
+            btn.addEventListener('click', () => {
+                activeCategory = btn.dataset.category;
+                renderCategories();
+                renderProducts();
+            });
+        });
+    }
+
+    // ── Product grid ───────────────────────────────────────
+    function renderProducts() {
+        const grid = document.getElementById('product-grid');
+        const filtered = activeCategory === 'All'
+            ? PRODUCTS
+            : PRODUCTS.filter(p => p.category === activeCategory);
+
+        if (filtered.length === 0) {
+            grid.innerHTML = '<p style="color:var(--text-muted)">No products found.</p>';
+            return;
+        }
+
+        grid.innerHTML = filtered.map(product => `
+            <article class="product-card" data-id="${product.id}">
+                <a href="product.html?id=${product.id}" style="display:block;text-decoration:none;">
+                    <div class="product-img">${productIcon(product.category)}</div>
+                </a>
+                <div class="product-category-tag">${product.category}</div>
+                <a href="product.html?id=${product.id}" class="product-name-link">${product.name}</a>
+                <div class="product-description">${product.description}</div>
+                <div class="product-price">£${product.price.toFixed(2)}</div>
+                <div class="add-to-cart-row">
+                    <input
+                        type="number"
+                        class="qty-input"
+                        id="qty-${product.id}"
+                        value="1"
+                        min="1"
+                        max="999"
+                        aria-label="Quantity"
+                    />
+                    <button
+                        class="btn-add"
+                        onclick="handleAddToCart('${product.id}')"
+                        aria-label="Add ${product.name} to cart"
+                    >Add to Cart</button>
+                </div>
+            </article>
+        `).join('');
+    }
+
+    function handleAddToCart(productId) {
+        const product = PRODUCTS.find(p => p.id === productId);
+        const qtyEl   = document.getElementById('qty-' + productId);
+        const qty     = parseInt(qtyEl ? qtyEl.value : '1', 10) || 1;
+        addToCart(product, qty);
+        if (qtyEl) qtyEl.value = 1;
+
+        // Auto-open cart on first add
+        if (cartSidebar.classList.contains('collapsed')) openCart();
+
+        // Flash the badge
+        const badge = document.getElementById('cart-badge');
+        badge.classList.add('flash');
+        setTimeout(() => badge.classList.remove('flash'), 300);
+    }
+
+    // ── Init ───────────────────────────────────────────────
+    // Pre-select category from landing page hash link
+    const hashCat = decodeURIComponent(window.location.hash.replace('#cat-', ''));
+    if (hashCat && CATEGORIES.includes(hashCat)) activeCategory = hashCat;
+
+    renderCategories();
+    renderProducts();
+    updateCartBadge();
+    renderCart();
+    initInactivityDetection();
+</script>
+
+</body>
+</html>

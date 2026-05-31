@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Voltex Supply – Product Detail</title>
+    <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+<!-- ── Header (adapts to logged-in / guest) ───────────────── -->
+<header id="page-header">
+    <!-- Populated by JS depending on auth state -->
+</header>
+
+<!-- ── Breadcrumb ─────────────────────────────────────────── -->
+<nav class="detail-breadcrumb" id="breadcrumb" aria-label="Breadcrumb">
+    <a href="landing.html">Home</a>
+    <span class="sep">›</span>
+    <a href="shop.html">Products</a>
+    <span class="sep">›</span>
+    <span id="bc-category"></span>
+    <span class="sep" id="bc-sep2">›</span>
+    <span id="bc-name"></span>
+</nav>
+
+<!-- ── Product Detail ─────────────────────────────────────── -->
+<div class="detail-layout" id="detail-layout">
+    <!-- Populated by JS -->
+</div>
+
+<!-- ── Related Products ───────────────────────────────────── -->
+<section class="related-section" id="related-section">
+    <h2 class="section-title">You may also like</h2>
+    <div class="related-grid" id="related-grid">
+        <!-- Populated by JS -->
+    </div>
+</section>
+
+<!-- ── Cart Sidebar (auth users only) ─────────────────────── -->
+<aside class="cart-sidebar collapsed" id="cart-sidebar" aria-label="Shopping cart">
+    <div class="cart-header">
+        <span>Your Cart</span>
+        <button class="btn-logout" id="btn-close-cart" aria-label="Close cart">✕</button>
+    </div>
+    <div class="cart-items-wrapper">
+        <div id="cart-items">
+            <p class="cart-empty">Your cart is empty.</p>
+        </div>
+    </div>
+    <div class="cart-footer">
+        <div class="cart-total-row">
+            <span>Total</span>
+            <span id="cart-total">£0.00</span>
+        </div>
+        <button class="btn-clear-cart" id="btn-clear-cart">Clear cart</button>
+        <a href="shop.html" class="btn-add" style="display:block;text-align:center;margin-top:.5rem;text-decoration:none;">
+            Continue Shopping
+        </a>
+    </div>
+</aside>
+
+<!-- ── Scripts ─────────────────────────────────────────────── -->
+<script src="js/auth.js"></script>
+<script src="js/products.js"></script>
+<script src="js/cart.js"></script>
+<script src="js/trigger.js"></script>
+<script src="js/inactivity.js"></script>
+
+<script>
+    // ── Resolve product from URL param ─────────────────────
+    const params    = new URLSearchParams(window.location.search);
+    const productId = params.get('id');
+    const product   = PRODUCTS.find(p => p.id === productId);
+
+    if (!product) {
+        document.getElementById('detail-layout').innerHTML =
+            '<p style="padding:2rem;color:var(--danger)">Product not found. <a href="shop.html">Back to shop</a></p>';
+        document.getElementById('related-section').style.display = 'none';
+        document.getElementById('breadcrumb').style.display = 'none';
+    } else {
+        // Update page title & breadcrumb
+        document.title = 'Voltex Supply – ' + product.name;
+        document.getElementById('bc-category').textContent = product.category;
+        document.getElementById('bc-name').textContent     = product.name;
+
+        // ── Auth state ─────────────────────────────────────
+        const currentUser = getSession();
+
+        // ── Header ─────────────────────────────────────────
+        const headerEl = document.getElementById('page-header');
+        if (currentUser) {
+            headerEl.outerHTML = `
+            <header class="site-header">
+                <a href="landing.html" class="logo" style="color:#fff;text-decoration:none;">Volt<span style="color:var(--accent)">ex</span> Supply</a>
+                <div class="header-right">
+                    <a href="shop.html" style="color:rgba(255,255,255,.85);font-size:.9rem;text-decoration:none;padding:.3rem .5rem;border-radius:var(--radius);transition:background .2s;" onmouseover="this.style.background='rgba(255,255,255,.12)'" onmouseout="this.style.background='transparent'">Products</a>
+                    <span class="header-user">Hi, ${currentUser.name.split(' ')[0]}</span>
+                    <button class="btn-cart" id="btn-cart-toggle" aria-expanded="false" aria-controls="cart-sidebar">
+                        🛒 Cart <span id="cart-badge">0</span>
+                    </button>
+                    <button class="btn-logout" onclick="logout()">Sign out</button>
+                </div>
+            </header>`;
+        } else {
+            headerEl.outerHTML = `
+            <header class="public-header">
+                <a href="landing.html" class="logo">Volt<span>ex</span> Supply</a>
+                <nav>
+                    <a href="shop.html">Products</a>
+                    <a href="index.html" class="btn-header-cta">Sign In</a>
+                </nav>
+            </header>`;
+        }
+
+        // ── Specs table ────────────────────────────────────
+        // Derive a few spec rows from the description text
+        const specsData = [
+            ['Category',    product.category],
+            ['Product ID',  product.id.toUpperCase()],
+            ['Unit price',  '£' + product.price.toFixed(2)],
+            ['Availability','In Stock'],
+            ['Lead time',   'Next working day']
+        ];
+        const specsHTML = specsData.map(([k,v]) =>
+            `<tr><td>${k}</td><td>${v}</td></tr>`
+        ).join('');
+
+        // ── Add to cart / Sign-in CTA ──────────────────────
+        const addRowHTML = currentUser
+            ? `<div class="detail-add-row">
+                   <input type="number" class="qty-input" id="detail-qty" value="1" min="1" max="999" aria-label="Quantity"/>
+                   <button class="btn-add-detail" id="btn-detail-add">🛒 Add to Cart</button>
+               </div>
+               <div class="detail-add-feedback" id="add-feedback">✅ Added to cart!</div>`
+            : `<div class="detail-add-row">
+                   <a href="index.html" class="btn-signin-to-buy">🔑 Sign in to buy</a>
+               </div>
+               <p style="font-size:.78rem;color:var(--text-muted);margin-top:.25rem;">
+                   <a href="landing.html">Create an account</a> or <a href="index.html">sign in</a> to add items to your cart.
+               </p>`;
+
+        // ── Render detail layout ───────────────────────────
+        document.getElementById('detail-layout').innerHTML = `
+            <div class="detail-image-wrap">
+                ${productIcon(product.category)}
+            </div>
+            <div class="detail-info">
+                <div class="detail-category-tag">${product.category}</div>
+                <h1 class="detail-name">${product.name}</h1>
+                <div class="detail-price">£${product.price.toFixed(2)} <small>exc. VAT</small></div>
+                <p class="detail-description">${product.description}</p>
+                <div class="detail-specs">
+                    <table><tbody>${specsHTML}</tbody></table>
+                </div>
+                ${addRowHTML}
+                <a href="shop.html" style="font-size:.85rem;color:var(--text-muted);">← Back to all products</a>
+            </div>
+        `;
+
+        // ── Add to cart handler (auth users) ───────────────
+        if (currentUser) {
+            updateCartBadge();
+            renderCart();
+
+            document.getElementById('btn-detail-add').addEventListener('click', () => {
+                const qty = parseInt(document.getElementById('detail-qty').value, 10) || 1;
+                addToCart(product, qty);
+                document.getElementById('detail-qty').value = 1;
+
+                const feedback = document.getElementById('add-feedback');
+                feedback.classList.add('visible');
+                setTimeout(() => feedback.classList.remove('visible'), 2500);
+
+                // Open cart sidebar
+                const sidebar = document.getElementById('cart-sidebar');
+                if (sidebar.classList.contains('collapsed')) {
+                    sidebar.classList.remove('collapsed');
+                    sidebar.classList.add('open');
+                    const toggle = document.getElementById('btn-cart-toggle');
+                    if (toggle) toggle.setAttribute('aria-expanded', 'true');
+                }
+            });
+
+            // Cart sidebar toggle
+            const btnToggle = document.getElementById('btn-cart-toggle');
+            const sidebar   = document.getElementById('cart-sidebar');
+            const btnClose  = document.getElementById('btn-close-cart');
+
+            if (btnToggle) {
+                btnToggle.addEventListener('click', () => {
+                    const isOpen = !sidebar.classList.contains('collapsed');
+                    if (isOpen) {
+                        sidebar.classList.add('collapsed');
+                        sidebar.classList.remove('open');
+                        btnToggle.setAttribute('aria-expanded', 'false');
+                    } else {
+                        sidebar.classList.remove('collapsed');
+                        sidebar.classList.add('open');
+                        btnToggle.setAttribute('aria-expanded', 'true');
+                    }
+                });
+            }
+            if (btnClose) btnClose.addEventListener('click', () => {
+                sidebar.classList.add('collapsed');
+                sidebar.classList.remove('open');
+            });
+
+            document.getElementById('btn-clear-cart').addEventListener('click', () => {
+                if (confirm('Clear all items from your cart?')) clearCart();
+            });
+
+            // Start inactivity detection
+            initInactivityDetection();
+        } else {
+            // Hide cart sidebar for guests
+            document.getElementById('cart-sidebar').style.display = 'none';
+        }
+
+        // ── Related products ───────────────────────────────
+        const related = PRODUCTS
+            .filter(p => p.id !== product.id && p.category === product.category)
+            .slice(0, 4);
+
+        const relatedAll = related.length > 0 ? related
+            : PRODUCTS.filter(p => p.id !== product.id).slice(0, 4);
+
+        document.getElementById('related-grid').innerHTML = relatedAll.map(p => `
+            <a class="product-card" href="product.html?id=${p.id}" style="text-decoration:none;color:inherit;display:flex;flex-direction:column;gap:.6rem;">
+                <div class="product-img">${productIcon(p.category)}</div>
+                <div class="product-category-tag">${p.category}</div>
+                <div style="font-size:.9rem;font-weight:600;line-height:1.3;">${p.name}</div>
+                <div style="font-size:.95rem;font-weight:700;color:var(--accent);">£${p.price.toFixed(2)}</div>
+            </a>
+        `).join('');
+    }
+</script>
+
+</body>
+</html>
