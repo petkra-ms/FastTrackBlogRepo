@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Lead Summary Control – Dev Harness</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: "Segoe UI", sans-serif;
+            background: #f5f5f5;
+            padding: 24px;
+        }
+        h1 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #242424;
+        }
+
+        /* ── Tab bar ─────────────────────────────────────────────── */
+        .tab-bar {
+            display: flex;
+            gap: 0;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+        }
+        .tab-bar button {
+            padding: 10px 20px;
+            border: none;
+            background: transparent;
+            color: #616161;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -2px;
+            transition: color 0.15s, border-color 0.15s;
+        }
+        .tab-bar button:hover { color: #0078d4; }
+        .tab-bar button.active {
+            color: #0078d4;
+            border-bottom-color: #0078d4;
+        }
+
+        /* ── Scenario buttons ────────────────────────────────────── */
+        .harness-controls {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .harness-controls button {
+            padding: 8px 16px;
+            border: 1px solid #0078d4;
+            background: #fff;
+            color: #0078d4;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        .harness-controls button:hover { background: #f0f6ff; }
+        .harness-controls button.active {
+            background: #0078d4;
+            color: #fff;
+        }
+
+        /* ── Control card ────────────────────────────────────────── */
+        #control-root {
+            max-width: 640px;
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 16px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Lead Summary Control – Dev Harness</h1>
+
+    <div class="tab-bar">
+        <button id="tab-scenarios" class="active">Scenario Previews</button>
+        <button id="tab-agent-test">Live Agent Test</button>
+    </div>
+
+    <!-- Scenario mode controls (visible by default) -->
+    <div id="scenario-controls" class="harness-controls">
+        <button id="btn-sales-relevant" class="active">Sales Relevant Lead</button>
+        <button id="btn-not-relevant">Not Sales Relevant Lead</button>
+        <button id="btn-unclear">Unclear Lead</button>
+        <button id="btn-with-recs">With Recommendations</button>
+        <button id="btn-loading">Loading State</button>
+        <button id="btn-error">Error State</button>
+    </div>
+
+    <!-- Agent test controls (hidden by default) -->
+    <div id="agent-test-controls" style="display: none;"></div>
+
+    <div id="control-root"></div>
+    <script src="bundle.js"></script>
+</body>
+</html>

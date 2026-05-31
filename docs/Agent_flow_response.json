@@ -1,0 +1,19 @@
+{
+    "statusCode": "200",
+    "schema": {
+        "type": "object",
+        "properties": {
+            "qualificationresult": {
+                "title": "QualificationResult",
+                "description": "",
+                "type": "string",
+                "x-ms-content-hint": "TEXT",
+                "x-ms-dynamically-added": true
+            }
+        },
+        "additionalProperties": {}
+    },
+    "body": {
+        "qualificationresult": "{\"@odata.context\":\"https://org3468959c.crm.dynamics.com/api/data/v9.1/$metadata#Microsoft.Dynamics.CRM.PredictResponse\",\"responsev2\":{\"@odata.type\":\"#Microsoft.Dynamics.CRM.expando\",\"operationStatus\":\"Success\",\"predictionId\":\"13e52d97-b760-4a16-b305-720f73ca8875\",\"predictionOutput\":{\"@odata.type\":\"#Microsoft.Dynamics.CRM.expando\",\"imagesCount@odata.type\":\"#Int64\",\"imagesCount\":0,\"modelType\":\"reasoning\",\"text\":\"{\\n  \\\"summary\\\": \\\"The lead data appears incomplete, as most fields contain placeholder values rather than actual information. Without details such as company name, email, or job title, it is not possible to determine sales relevance accurately.\\\",\\n  \\\"isSalesRelevant\\\": \\\"unclear\\\",\\n  \\\"keyFactors\\\": [\\n    \\\"Missing or placeholder values for key fields like company name, email, and job title\\\",\\n    \\\"Insufficient information to assess lead quality or intent\\\"\\n  ],\\n  \\\"recommendationText\\\": \\\"Populate the lead record with actual values for company name, email, job title, and other essential fields to enable proper qualification.\\\",\\n  \\\"fieldRecommendations\\\": [\\n    {\\n      \\\"fieldName\\\": \\\"companyname\\\",\\n      \\\"displayName\\\": \\\"Company Name\\\",\\n      \\\"recommendedValue\\\": \\\"Enter the actual company name\\\"\\n    },\\n    {\\n      \\\"fieldName\\\": \\\"emailaddress1\\\",\\n      \\\"displayName\\\": \\\"Email\\\",\\n      \\\"recommendedValue\\\": \\\"Enter a valid business email address\\\"\\n    },\\n    {\\n      \\\"fieldName\\\": \\\"jobtitle\\\",\\n      \\\"displayName\\\": \\\"Job Title\\\",\\n      \\\"recommendedValue\\\": \\\"Enter the contact's job title\\\"\\n    }\\n  ]\\n}\",\"thoughtSteps\":\"\",\"finishReason\":\"stop\",\"totalTokens@odata.type\":\"#Int64\",\"totalTokens\":1969,\"promptTokens@odata.type\":\"#Int64\",\"promptTokens\":1728,\"completionTokens@odata.type\":\"#Int64\",\"completionTokens\":241,\"modelName\":\"gpt-5-chat-2025-07-14\",\"costAsAiBuilderCredits@odata.type\":\"#Int64\",\"costAsAiBuilderCredits\":0,\"costAsCopilotCredits\":3.0}}}"
+    }
+}

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<manifest>
+  <control namespace="CustomLeadSummary" constructor="LeadSummaryControl" version="0.0.7"
+    display-name-key="LeadSummaryControl" description-key="LeadSummaryControl_Desc" control-type="virtual">
+
+    <!-- Uses MSAL + Copilot Studio REST API (external calls required) -->
+    <external-service-usage enabled="true" />
+    <feature-usage>
+      <uses-feature name="WebAPI" required="true" />
+    </feature-usage>
+
+    <!-- Bind to any single-line text field on the lead so the control can be placed on the form -->
+    <property name="boundField"
+              display-name-key="BoundField"
+              description-key="Bind to any text field on the lead (e.g. Subject). The control uses this as an anchor on the form."
+              of-type="SingleLine.Text"
+              usage="bound"
+              required="true" />
+
+    <!-- Entra ID App Registration — Application (client) ID -->
+    <property name="clientId"
+              display-name-key="Client ID"
+              description-key="Application (client) ID from the Entra ID app registration"
+              of-type="SingleLine.Text"
+              usage="input"
+              required="true" />
+
+    <!-- Entra ID — Directory (tenant) ID -->
+    <property name="tenantId"
+              display-name-key="Tenant ID"
+              description-key="Directory (tenant) ID from Azure AD"
+              of-type="SingleLine.Text"
+              usage="input"
+              required="true" />
+
+    <!-- Power Platform environment ID where the agent is published -->
+    <property name="environmentId"
+              display-name-key="Environment ID"
+              description-key="Power Platform environment ID (GUID) where the Copilot Studio agent is published"
+              of-type="SingleLine.Text"
+              usage="input"
+              required="true" />
+
+    <!-- Agent identifier (schema name) from Copilot Studio Metadata -->
+    <property name="agentIdentifier"
+              display-name-key="Agent Identifier"
+              description-key="Agent schema name from Copilot Studio (Advanced > Metadata), e.g. copilots_header_cr123_MyAgent"
+              of-type="SingleLine.Text"
+              usage="input"
+              required="true" />
+
+    <!-- Publisher prefix used for the feedback entity, e.g. "cr123" -->
+    <property name="publisherPrefix"
+              display-name-key="PublisherPrefix"
+              description-key="PublisherPrefix_Desc"
+              of-type="SingleLine.Text"
+              usage="input"
+              required="true" />
+
+    <!-- Logical name of the TwoOptions field on the lead to update, e.g. "cr123_issalesrelevant" -->
+    <property name="salesRelevantFieldName"
+              display-name-key="SalesRelevantFieldName"
+              description-key="SalesRelevantFieldName_Desc"
+              of-type="SingleLine.Text"
+              usage="input"
+              required="true" />
+
+    <resources>
+      <code path="index.ts" order="1"/>
+      <platform-library name="React" version="16.14.0" />
+      <platform-library name="Fluent" version="9.46.2" />
+    </resources>
+
+  </control>
+</manifest>
+
